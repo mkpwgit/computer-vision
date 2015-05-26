@@ -14,7 +14,7 @@ class BarcodeDetector {
     }
 
     public static void main(String[] args) {
-        String fileName = "F:\\barcode4.jpg";
+        String fileName = "F:\\barcode5.jpg";
 
         //load image
         Mat image = Highgui.imread(fileName);
@@ -42,8 +42,8 @@ class BarcodeDetector {
         Core.convertScaleAbs(gradient, gradient);
 
         //устранить шум на изображении и сфокусироваться сугубо на области со штрихкодом.
-        Imgproc.blur(gradient, blurImage, new Size(9.0, 9.0));
-        Imgproc.threshold(blurImage, thresholdImage, 155.0, 155.0, Imgproc.THRESH_BINARY);
+        Imgproc.blur(gradient, blurImage, new Size(10.0, 9.0));
+        Imgproc.threshold(blurImage, thresholdImage, 85.0, 85.0, Imgproc.THRESH_BINARY);
 
         //создадим прямоугольник с помощью getStructuringElement.
         // Ширина ядра больше его высоты, что позволяет нам перекрыть пространство между вертикальными полосками штрихкода.
@@ -56,8 +56,10 @@ class BarcodeDetector {
         // Эрозия уберёт белые пиксели с изображения, удаляя мелкие блобы,
         // а дилатация не позволит крупным белым областям уменьшиться.
         // Удаленные во время размытия мелкие пятна во время растяжения не появятся вновь.
-        Imgproc.erode(closedImage, closedImage, kernelImage);
-        Imgproc.dilate(closedImage, closedImage, kernelImage);
+        Imgproc.erode(closedImage, closedImage, kernelImage, new Point(-1, -1), 9);
+        Imgproc.dilate(closedImage, closedImage, kernelImage, new Point(-1, -1), 9);
+
+//        Highgui.imwrite("F:\\barcodeResult.jpg", thresholdImage);
 
         //находим конторы на изображении
         List<MatOfPoint> matOfPoints = new ArrayList<>();
@@ -69,6 +71,7 @@ class BarcodeDetector {
         for (int i = 0; i < matOfPoints.size(); i++) {
             List<Point> currentPoints = matOfPoints.get(i).toList();
             if (currentPoints.size() > maxSize) {
+                maxSize = currentPoints.size();
                 points = currentPoints;
             }
 
@@ -83,7 +86,7 @@ class BarcodeDetector {
         Point points2[] = new Point[4];
         rect.points(points2);
         for (int i = 0; i < 4; ++i) {
-            Core.line(image, points2[i], points2[(i + 1) % 4], new Scalar(0, 255, 0), 3);
+            Core.line(image, points2[i], points2[(i + 1) % 4], new Scalar(56, 0, 0), 5);
         }
 //        Imgproc.drawContours(image, resultList, -1, new Scalar(0, 255, 0), 3);
 
